@@ -1,0 +1,15 @@
+/* xs: 0px, sm: 576px, md: 768px, lg: 992px, xl: 1200px */
+@media (min-width: 992px) {
+  ion-split-pane {
+    ion-menu {
+      order: 0;
+      border-inline-start: unset;
+      border-inline-end: var(--border);
+    }
+  }
+}
+
+ion-item.active {
+  color: var(--ion-color-primary);
+}
+

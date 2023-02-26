@@ -1,0 +1,20 @@
+html {
+  font-size: 10px;
+}
+
+body {
+  font-size: 1.8rem;
+}
+
+ion-alert.lv-alert {
+  --min-width: 75vw;
+}
+
+ion-button {
+  margin: 0 10px;
+}
+
+ion-toast[class*="toast-gnss-"] {
+  --ion-safe-area-bottom: 6rem;
+  text-align: center;
+}

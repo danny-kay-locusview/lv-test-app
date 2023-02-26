@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+const { spawnSync } = require('child_process');
+
+// Load package.json
+const INSTALL_DIRECTORY = process.cwd();
+
+// git submodule foreach 'git reset --hard origin'
+spawnSync('git', ['submodule', 'foreach', 'git reset --hard origin'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+// git submodule update
+spawnSync('git', ['submodule', 'update'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+// git submodule sync
+spawnSync('git', ['submodule', 'sync'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+// git submodule status
+console.log('--- git submodules ---');
+
+spawnSync('git', ['submodule', 'status'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });

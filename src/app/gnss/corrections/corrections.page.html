@@ -1,0 +1,96 @@
+<ion-content>
+  <ion-segment [(ngModel)]="activeSegment">
+    <ion-segment-button value="rtk">
+      <ion-label>RTK</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="datum">
+      <ion-label>Datum Shift</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ng-container [ngSwitch]="activeSegment">
+    <ng-template ngSwitchCase="rtk">
+      <app-select-card title="Streams" icon="wifi" valueProp="mountPoint" [value]="selected" [options]="optionsFn" [(toggle)]="toggle" (valueChanged)="optionChanged($event)" (toggleChanged)="toggleChanged($event)"></app-select-card>
+
+      <ion-card>
+        <ion-card-content>
+          <ion-card-subtitle>Status</ion-card-subtitle>
+
+          <ion-item class="ion-no-padding" lines="none">
+            <ion-label>{{ toWords(State[gnssService.rtkState]) }}</ion-label>
+            <ion-text *ngIf="duration" slot="end">{{ duration | date: "HH:mm:ss": "UTC" }}</ion-text>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-content>
+          <ion-card-subtitle>Raw Data</ion-card-subtitle>
+
+          <ion-list>
+            <ion-item class="ion-no-padding">
+              <ion-label>Last Sent To RTK</ion-label>
+              <ion-text color="medium" slot="end">{{ data?.lastSentToRTK ?? "---"}}</ion-text>
+            </ion-item>
+
+            <ion-item class="ion-no-padding">
+              <ion-label>Last Received From RTK</ion-label>
+              <ion-text color="medium" slot="end">{{ data?.lastReceivedFromRTK ?? "---"}}</ion-text>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </ng-template>
+
+    <ng-template ngSwitchCase="datum">
+      <ion-card>
+        <ion-card-content>
+          <ion-card-subtitle>From</ion-card-subtitle>
+
+          <ion-item class="ion-no-padding">
+            <ion-label position="floating">Datum</ion-label>
+            <ion-select [(ngModel)]="fromDatum">
+              <ion-select-option *ngFor="let datum of Datums | keyvalue" [value]="datum.value">{{ datum.value }}</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="ion-no-padding">
+            <ion-label position="floating">Latitude</ion-label>
+            <ion-input type="number" [(ngModel)]="fromLat"></ion-input>
+          </ion-item>
+
+          <ion-item class="ion-no-padding">
+            <ion-label position="floating">Longitude</ion-label>
+            <ion-input type="number" [(ngModel)]="fromLon"></ion-input>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-content>
+          <ion-card-subtitle>To</ion-card-subtitle>
+
+          <ion-item class="ion-no-padding">
+            <ion-label position="floating">Datum</ion-label>
+            <ion-select [(ngModel)]="toDatum">
+              <ion-select-option *ngFor="let datum of Datums | keyvalue" [value]="datum.value">{{ datum.value }}</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="ion-no-padding">
+            <ion-label position="floating">Latitude</ion-label>
+            <ion-input type="number" [(ngModel)]="toLat" [readonly]="true"></ion-input>
+          </ion-item>
+
+          <ion-item class="ion-no-padding">
+            <ion-label position="floating">Longitude</ion-label>
+            <ion-input type="number" [(ngModel)]="toLon" [readonly]="true"></ion-input>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-button expand="block" (click)="datumShift()">Shift</ion-button>
+    </ng-template>
+  </ng-container>
+
+</ion-content>

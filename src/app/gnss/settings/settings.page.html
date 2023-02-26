@@ -1,0 +1,55 @@
+<ion-content>
+  <form [formGroup]="settings" (ngSubmit)="submit()" novalidate>
+    <ion-card>
+      <ion-card-content>
+        <ion-card-subtitle>GNSS</ion-card-subtitle>
+
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Accuracy display units</ion-label>
+          <ion-select formControlName="measurementSystem">
+            <ion-select-option [value]="MeasurementSystem.Imperial">Imperial</ion-select-option>
+            <ion-select-option [value]="MeasurementSystem.Metric">Metric</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Trimble App ID</ion-label>
+          <ion-input formControlName="trimbleAppId"></ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-content>
+        <ion-card-subtitle>RTK</ion-card-subtitle>
+
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Host</ion-label>
+          <ion-input formControlName="host"></ion-input>
+        </ion-item>
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Port</ion-label>
+          <ion-input formControlName="port"></ion-input>
+        </ion-item>
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Username</ion-label>
+          <ion-input formControlName="username"></ion-input>
+        </ion-item>
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Password</ion-label>
+          <ion-input type="password" formControlName="password"></ion-input>
+        </ion-item>
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Disconnection Threshold</ion-label>
+          <ion-input formControlName="disconnectionThreshold"></ion-input>
+        </ion-item>
+        <ion-item class="ion-no-padding" detail="false">
+          <ion-label position="floating">Send GGA sentence rate</ion-label>
+          <ion-input formControlName="setGgaSentenceRate"></ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button type="submit" expand="block">Save</ion-button>
+  </form>
+</ion-content>

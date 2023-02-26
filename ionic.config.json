@@ -1,0 +1,7 @@
+{
+  "name": "LV Test App",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

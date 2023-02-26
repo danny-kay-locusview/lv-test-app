@@ -1,0 +1,16 @@
+<ion-content>
+  <div leaflet [leafletOptions]="options" [(leafletCenter)]="center" [(leafletZoom)]="zoom" (leafletMapReady)="onMapReady($event)">
+    <div *ngIf="currentPosition" [leafletLayer]="currentPosition"></div>
+  </div>
+
+  <ng-container *ngIf="data?.latitude && data?.longitude else noData">
+    <ion-text id="locationLabel" slot="fixed">
+      Latitude: {{ data?.latitude ?? 0 }}<br>
+      Longitude: {{ data?.longitude ?? 0 }}
+    </ion-text>
+  </ng-container>
+
+  <ng-template #noData>
+    <div id="noDataLabel" slot="fixed">No data</div>
+  </ng-template>
+</ion-content>

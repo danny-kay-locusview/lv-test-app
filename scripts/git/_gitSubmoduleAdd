@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+// Load package.json
+const INSTALL_DIRECTORY = process.cwd();
+const PACKAGE_FILE = path.join(INSTALL_DIRECTORY, 'package.json');
+const packageInfo = require(PACKAGE_FILE);
+
+// Get command line arguments
+let [,, submoduleUrl, submodulePath, submoduleBranch, ...args] = process.argv;
+
+if (submoduleUrl && submodulePath) {
+  submoduleUrl = '../' + path.basename(submoduleUrl).replace('.git', '') + '.git';
+  submodulePath = path.basename(submodulePath).replace('.git', '');
+  submoduleBranch = submoduleBranch || "master";
+
+  const submoduleRelativePath = path.join(INSTALL_DIRECTORY, submodulePath);
+
+  // If submodules array has not been initialized in package.json, we'll create it
+  if (!packageInfo.submodules) {
+    packageInfo.submodules = [];
+  }
+
+  // If the submodule we want to add already exists in the package.json we'll fail here
+  let submoduleConfig = packageInfo.submodules.find((submodule) => submodule.path === submodulePath);
+  if (submoduleConfig) {
+    console.error(`Submodule at path ${submodulePath} already added!`);
+    return 1
+  }
+
+  // Create the new submodule config
+  submoduleConfig = {
+    path: submodulePath,
+    url: submoduleUrl,
+    branch: submoduleBranch
+  };
+
+  // Add the new submodule config to the package.json submodules array
+  packageInfo.submodules.push(submoduleConfig)
+
+  // Sort submodules in the array alphabetically
+  packageInfo.submodules.sort((a, b) => a.path.localeCompare(b.path));
+
+  // Write the new contents of the package.json
+  fs.writeFileSync(PACKAGE_FILE, JSON.stringify(packageInfo, null, 2));
+
+  // Add the submodule with git
+  let spawn = spawnSync('git', ['submodule', 'add', submoduleUrl, submodulePath], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+  if (spawn.error) {
+    console.error(`Submodule ${submodulePath} could not be added!`);
+    return 1
+  }
+
+  // Update .gitmodules with the branch
+  spawnSync('git', ['submodule', 'set-branch', '-b', submoduleBranch, submodulePath], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+  // Check if submodule directory exists and is writable, fail otherwise
+  fs.accessSync(submoduleRelativePath, fs.constants.W_OK);
+
+  // Initialize submodule
+  spawnSync('git', ['submodule', 'update', '--init'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+  // Checkout proper branch
+  spawnSync('git', ['checkout', submoduleConfig.branch], { stdio: 'inherit', cwd: submoduleRelativePath });
+
+  // Pull changes from origin
+  spawnSync('git', ['pull', 'origin', submoduleConfig.branch], { stdio: 'inherit', cwd: submoduleRelativePath });
+
+  // Add the submodule as an npm dependency
+  const npmPath = 'file:./' + submodulePath;
+  spawn = spawnSync('npm', ['install', submodulePath, npmPath], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+  if (spawn.error) {
+    console.error(`Submodule ${submodulePath} could not be installed!`);
+    return 1
+  }
+
+  // Install submodule packages
+  // Skip non-npm submodules
+  fs.accessSync(path.join(submoduleRelativePath, 'package.json'), fs.constants.F_OK);
+  spawn = spawnSync('npm', ['install'], { stdio: 'inherit', cwd: submoduleRelativePath });
+  if (spawn.error) {
+    console.error(`Submodule ${submodulePath} could not be installed!`);
+    return 1
+  }
+
+  console.log('--- git submodules ---');
+
+  spawnSync('git', ['submodule', 'status'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+} else {
+  console.error('Usage: node _gitSubmoduleAdd <submodule-url> <submodule-branch?> <submodule-path?>');
+  return 1
+}
+

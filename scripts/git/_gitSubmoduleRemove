@@ -1,0 +1,46 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+// Load package.json
+const INSTALL_DIRECTORY = process.cwd();
+const PACKAGE_FILE = path.join(INSTALL_DIRECTORY, 'package.json');
+const packageInfo = require(PACKAGE_FILE);
+
+// Get command line arguments
+let [,, submodulePath, ...args] = process.argv;
+
+if (submodulePath) {
+
+  //Remove the submodule entry from .git/config
+  spawnSync('git', ['submodule', 'deinit', '-f', submodulePath], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+  // Remove the submodule dependency from package.json
+  spawnSync('npm', ['uninstall', submodulePath], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+  delete packageInfo.dependencies[submodulePath];
+
+  //Remove the submodule directory from the superproject's .git/modules directory
+  spawnSync('rm', ['-rf', path.join(".git/modules", submodulePath)], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+  //Remove the submodule directory from the root directory
+  spawnSync('rm', ['-rf', submodulePath], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+  //Remove the entry in .gitmodules and remove the submodule directory located at path/to/submodule
+  spawnSync('git', ['rm', '-f', submodulePath], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+  // Add the new submodule config to the package.json submodules array
+  packageInfo.submodules = packageInfo.submodules.filter((submodule) => submodule.path !== submodulePath);
+
+  // Write the new contents of the package.json
+  fs.writeFileSync(PACKAGE_FILE, JSON.stringify(packageInfo, null, 2));
+
+  console.log('--- git submodules ---');
+
+  spawnSync('git', ['submodule', 'status'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+} else {
+  console.error('Usage: _gitSubmoduleRemove <submodule-path>');
+  return 1
+}

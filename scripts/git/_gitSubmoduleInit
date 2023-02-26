@@ -1,0 +1,60 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+// Load package.json
+const INSTALL_DIRECTORY = process.cwd();
+const packageInfo = require(path.join(INSTALL_DIRECTORY, 'package.json'));
+
+if (packageInfo.submodules && Array.isArray(packageInfo.submodules) && packageInfo.submodules.length) {
+  // Make sure gitmodules file exists
+  const gitmodulesPath = path.join(INSTALL_DIRECTORY, '.gitmodules');
+  try {
+    fs.accessSync(gitmodulesPath, fs.constants.F_OK);
+  } catch (err) {
+    fs.writeFileSync(gitmodulesPath, '')
+  }
+  // Iterate over submodules
+  for (const submoduleConfig of packageInfo.submodules) {
+    const submodulePath = path.join(INSTALL_DIRECTORY, submoduleConfig.path);
+    try {
+      // Check if submodule directory exists. If not, submodule will be added.
+      fs.accessSync(submodulePath, fs.constants.F_OK);
+    } catch (err) {
+      if (err.code === 'ENOENT') {
+        // Submodule not added yet, add it.
+        console.log('Adding submodule');
+        spawnSync('git', ['submodule', 'add', submoduleConfig.url, submoduleConfig.path], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+      } else {
+        console.log(err);
+      }
+    }
+
+    // Check if submodule directory exists and is writable, fail otherwise
+    fs.accessSync(submodulePath, fs.constants.W_OK);
+
+    // Initialize submodule
+    spawnSync('git', ['submodule', 'update', '--init'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+
+    // Checkout proper branch
+    spawnSync('git', ['checkout', submoduleConfig.branch], { stdio: 'inherit', cwd: submodulePath });
+
+    // Pull changes from origin
+    spawnSync('git', ['pull', 'origin', submoduleConfig.branch], { stdio: 'inherit', cwd: submodulePath });
+
+    // Install submodule packages
+    try {
+      // Skip non-npm submodules
+      fs.accessSync(path.join(submodulePath, 'package.json'), fs.constants.F_OK);
+      spawnSync('npm', ['install'], { stdio: 'inherit', cwd: submodulePath });
+    } catch (_err) {
+    }
+  }
+
+  console.log('--- git submodules ---');
+
+  spawnSync('git', ['submodule', 'status'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+}
+

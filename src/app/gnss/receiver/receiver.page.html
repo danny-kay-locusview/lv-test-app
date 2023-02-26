@@ -1,0 +1,103 @@
+<ion-content>
+  <app-select-card title="Accessories" icon="bluetooth" [value]="selected" [options]="optionsFn" [(toggle)]="toggle" (valueChanged)="optionChanged($event)" (toggleChanged)="toggleChanged($event)"></app-select-card>
+
+  <ion-button expand="block" class="ion-margin-bottom" (click)="getAccessoryInfo()">Get accessory info</ion-button>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-card-subtitle>Status</ion-card-subtitle>
+
+      <ion-item class="ion-no-padding" lines="none">
+        <ng-container *ngIf="gnssService.gnssState === State.Connected else status">
+          <ion-text slot="start">
+            <ion-icon src="../../../assets/icons/satellite.svg" size="small"></ion-icon>
+            {{ data?.satelliteCount ?? 0 }}
+          </ion-text>
+          <ion-text>{{ toWords(FixQuality[data?.fixQuality ?? 0]) }}</ion-text>
+          <ion-text slot="end">{{ displayAccuracy }}</ion-text>
+        </ng-container>
+
+        <ng-template #status>
+          {{ toWords(State[gnssService.gnssState]) }}
+        </ng-template>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-button expand="block" (click)="rebootAccessory()">Reboot accessory</ion-button>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-card-subtitle>Raw Data</ion-card-subtitle>
+
+      <ion-list>
+        <ion-item class="ion-no-padding">
+          <ion-label>Timestamp</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.timestamp ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Latitude</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.latitude ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Longitude</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.longitude ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Altitude</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.altitude ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Latitude SD</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.latitudeSd ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Longitude SD</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.longitudeSd ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Altitude SD</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.altitudeSd ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Correction Age</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.correctionAge ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Correction Station ID</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.dsId ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Fix Quality</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.fixQuality ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Accuracy</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.accuracy ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Satellites In View</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.satellitesInView ?? "---"}}</ion-text>
+        </ion-item>
+
+        <ion-item class="ion-no-padding">
+          <ion-label>Satellites In Use</ion-label>
+          <ion-text color="medium" slot="end">{{ data?.satelliteCount ?? "---"}}</ion-text>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-button expand="block" class="ion-margin-bottom" (click)="getDataSnapshot()">Get data snapshot</ion-button>
+</ion-content>

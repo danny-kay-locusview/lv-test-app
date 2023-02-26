@@ -1,0 +1,12 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+ion-toolbar.transparent {
+  --ion-toolbar-background: transparent;
+}
+
+ion-back-button.can-go-back {
+  display: block;
+}

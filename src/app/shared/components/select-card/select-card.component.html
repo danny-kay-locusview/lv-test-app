@@ -1,0 +1,37 @@
+<!-- **************************** -->
+<!--             Card             -->
+<!-- **************************** -->
+<ion-card>
+  <ion-card-content>
+    <ion-card-subtitle>{{ title }}</ion-card-subtitle>
+
+    <ion-item class="ion-no-padding" lines="none">
+      <ion-label *ngIf="value else notSelected">{{ value[valueProp] }}</ion-label>
+
+      <ng-template #notSelected>
+        <ion-label>No item selected</ion-label>
+      </ng-template>
+      <ion-button class="ion-no-padding" fill="clear" (click)="openModal()">{{ selectText }}</ion-button>
+    </ion-item>
+
+    <ion-toggle [checked]="toggle" (ionChange)="toggleChangedFn($event)"></ion-toggle>
+  </ion-card-content>
+</ion-card>
+
+<!-- **************************** -->
+<!--             Modal            -->
+<!-- **************************** -->
+<ion-modal #modal [initialBreakpoint]="0.25" [breakpoints]="[0, 0.25, 0.5, 0.75]" (willDismiss)="valueChangedFn($event)">
+  <ng-template>
+    <ion-content>
+      <ion-searchbar placeholder="Search" [(ngModel)]="searchTerm" (ngModelChange)="search($event)"></ion-searchbar>
+      <ion-list>
+        <ion-item *ngFor="let acc of searchOptions" button="true" detail="false" (click)="dismissModal(acc)">
+          <ion-icon *ngIf="icon" [name]="icon" slot="start"></ion-icon>
+          <ion-label>{{ acc[valueProp] }}</ion-label>
+          <ion-icon *ngIf="acc[valueProp] === value?.[valueProp]" name="checkmark-circle" size="small" color="primary" slot="end"></ion-icon>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>

@@ -1,0 +1,41 @@
+<app-header [hamburger]="true" [transparent]="true"></app-header>
+
+<ion-content>
+  <div id="hero" class="ion-flex-center">
+    <ion-img src="../../assets/images/logo.svg"></ion-img>
+    <h1>LV Test App</h1>
+    <hr>
+    <h2>For external device & <br>component testing</h2>
+  </div>
+
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="6">
+        <ion-card button="true" routerLink="/gnss" class="ion-flex-center">
+          <ion-card-content class="ion-flex-center">
+            <ion-icon name="compass-outline" size="large" color="dark"></ion-icon>
+            <ion-text>GNSS</ion-text>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="6">
+        <ion-card button="true" routerLink="/ble" class="ion-flex-center">
+          <ion-card-content class="ion-flex-center">
+            <ion-icon name="bluetooth-outline" size="large" color="dark"></ion-icon>
+            <ion-text>BLE</ion-text>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col size="6">
+        <ion-card button="true" routerLink="/usb" class="ion-flex-center" disabled="true">
+          <ion-card-content class="ion-flex-center">
+            <ion-icon src="../../assets/icons/usb.svg" size="large" color="dark"></ion-icon>
+            <ion-text>USB</ion-text>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

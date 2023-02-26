@@ -1,0 +1,53 @@
+<app-header title="BLE" [hamburger]="true"></app-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-content>
+      <ion-card-subtitle>Settings</ion-card-subtitle>
+
+      <ion-item class="ion-no-padding">
+        <ion-label position="floating">Scan duration (ms)</ion-label>
+        <ion-input type="number" [(ngModel)]="scanDuration"></ion-input>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+
+  <app-select-card title="Accessories" icon="bluetooth" selectText="scan" [value]="selected" [options]="optionsFn" [(toggle)]="toggle" (valueChanged)="optionChanged($event)" (toggleChanged)="toggleChanged($event)"></app-select-card>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-card-subtitle>Services/Characteristics</ion-card-subtitle>
+
+      <ion-item button="true" lines="none" class="ion-no-padding" (click)="getServices()">Get Services</ion-item>
+
+      <ion-select placeholder="Services" class="ion-no-padding ion-padding-bottom ion-margin-vertical" [(ngModel)]="service">
+        <ion-select-option *ngFor="let s of services" [value]="s">{{ s.uuid }}</ion-select-option>
+      </ion-select>
+
+      <ion-select placeholder="Characteristics" class="ion-no-padding ion-margin-vertical" [(ngModel)]="characteristic">
+        <ion-select-option *ngFor="let c of characteristics" [value]="c">{{ c.uuid }}</ion-select-option>
+      </ion-select>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-card-subtitle>Notifications</ion-card-subtitle>
+
+      <ion-button (click)="startNotifications()">Start</ion-button>
+      <ion-button (click)="stopNotifications()">Stop</ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-content>
+      <ion-card-subtitle>Read/Write</ion-card-subtitle>
+
+      <ion-item button="true" detail="false" class="ion-no-padding" (click)="read()">Read</ion-item>
+      <ion-item class="ion-no-padding">
+        <ion-input placeholder="Data to write" [(ngModel)]="data"></ion-input>
+        <ion-button class="ion-no-padding" fill="clear" slot="end" (click)="write()">Write</ion-button>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

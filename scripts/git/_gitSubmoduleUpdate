@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+// Load package.json
+const INSTALL_DIRECTORY = process.cwd();
+const PACKAGE_FILE = path.join(INSTALL_DIRECTORY, 'package.json');
+const packageInfo = require(PACKAGE_FILE);
+
+// Get command line arguments
+const [,, selectedSubmodulePath, newBranchName, ...args] = process.argv;
+
+function serialize(obj) {
+  if (!obj) {
+    return '';
+  }
+  let str = '';
+  const entries = Object.entries(obj);
+  for (const [key, value] of entries) {
+    str += `[submodule "${Object.values(value)[0]}"]\n`;
+    const values = Object.entries(value);
+    for (const [left, right] of values) {
+      str += `	${left} = ${right}\n`;
+    }
+  }
+  return str;
+}
+
+if (selectedSubmodulePath && newBranchName) {
+  if (packageInfo.submodules && Array.isArray(packageInfo.submodules) && packageInfo.submodules.length) {
+    const submoduleConfig = packageInfo.submodules.find(submoduleConfig => submoduleConfig.path === selectedSubmodulePath);
+    if (submoduleConfig) {
+        const submodulePath = path.join(INSTALL_DIRECTORY, selectedSubmodulePath);
+
+        spawnSync('git', ['reset', '--hard'], { stdio: 'inherit', cwd: submodulePath });
+
+        // Checkout proper branch
+        let branchCheckoutProcess = spawnSync('git', ['checkout', newBranchName], { stdio: 'inherit', cwd: submodulePath });
+
+        // Try fetching from origin
+        if (branchCheckoutProcess.status) {
+          spawnSync('git', ['fetch'], { stdio: 'inherit', cwd: submodulePath });
+          branchCheckoutProcess = spawnSync('git', ['checkout', newBranchName], { stdio: 'inherit', cwd: submodulePath });
+        }
+
+        if (!branchCheckoutProcess.status) {
+          // Save branch config
+          submoduleConfig.branch = newBranchName;
+          fs.writeFileSync(PACKAGE_FILE, JSON.stringify(packageInfo, null, 2));
+
+          // Pull changes from origin
+          spawnSync('git', ['pull', 'origin', newBranchName], { stdio: 'inherit', cwd: submodulePath });
+
+          // Install branch packages
+          spawnSync('npm', ['install'], { stdio: 'inherit', cwd: submodulePath });
+        } else {
+          console.error(`Submodule does not have "${newBranchName}" branch`);
+          return 1
+        }
+    } else {
+      console.error(`Submodule at path ${selectedSubmodulePath} not found!`);
+      return 1
+    }
+
+    const updatedSubmodules = serialize(packageInfo.submodules);
+
+    fs.writeFileSync('.gitmodules', updatedSubmodules, 'utf8');
+
+    console.log('--- git submodules ---');
+
+    spawnSync('git', ['submodule', 'status'], { stdio: 'inherit', cwd: INSTALL_DIRECTORY });
+  }
+
+} else {
+  console.error('Usage: git-submodule-branch <submodule-path> <new-branch-name>');
+  return 1
+}

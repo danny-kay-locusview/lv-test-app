@@ -1,0 +1,12 @@
+[submodule "gnss-lib"]
+	path = gnss-lib
+	url = ../gnss-lib.git
+	branch = 3.3.0
+[submodule "lv-converter"]
+	path = lv-converter
+	url = ../lv-converter
+	branch = 1.2.3
+[submodule "lv-datum"]
+	path = lv-datum
+	url = ../lv-datum
+	branch = 6.0.0

@@ -1,0 +1,26 @@
+@import "../../../theme/extensions";
+
+div[leaflet] {
+  height: 100%;
+}
+
+#noDataLabel {
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,.4);
+
+  @extend .ion-flex-center;
+
+  color: var(--ion-color-light);
+  font-weight: 700;
+}
+
+#locationLabel {
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  background: rgba(var(--ion-color-light-rgb), .7);
+  padding: 0 1rem;
+  white-space: nowrap;
+}
